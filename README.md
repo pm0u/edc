@@ -1,11 +1,11 @@
-# agentic-tidbits
+# kit
 
 Small, purpose-built agents and commands for AI-assisted development workflows. Designed for [OpenPackage](https://openpackage.dev).
 
 ## Install
 
 ```bash
-opkg install gh@pm0u/agentic-tidbits
+opkg install gh@pm0u/kit
 ```
 
 ## Agents
