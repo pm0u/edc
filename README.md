@@ -40,6 +40,8 @@ AI tools are useful for bounded, verifiable tasks. They are bad at judgment, tas
 - **Verification over generation.** The hard part isn't writing code -- it's knowing the code is correct.
 - **Human judgment where it matters.** Route human attention to disputes and decisions, not scanning diffs.
 
+Stay safe out there, meatbags.
+
 ## License
 
 MIT
