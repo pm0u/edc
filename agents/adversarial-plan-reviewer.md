@@ -1,5 +1,5 @@
 ---
-name: adversarial-reviewer
+name: adversarial-plan-reviewer
 description: |
   Adversarial plan reviewer that stress-tests implementation plans. Pokes holes
   in assumptions, identifies risks, and challenges feasibility before work begins.

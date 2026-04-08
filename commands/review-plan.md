@@ -22,5 +22,5 @@ $ARGUMENTS
    - `.planning/**/PLAN.md`
    - Any recently created design doc or proposal
 3. If multiple candidates exist, ask which one to review
-4. Spawn the `adversarial-reviewer` agent with the plan content and any referenced codebase files
+4. Spawn the `adversarial-plan-reviewer` agent with the plan content and any referenced codebase files
 5. Present the review to the user
