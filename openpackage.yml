@@ -1,6 +1,6 @@
-name: kit
-version: 0.2.1
-description: Small, purpose-built agents and commands for AI-assisted development workflows
+name: edc
+version: 0.3.0
+description: Defensive tools for working with AI
 keywords: [adversarial-review, code-review, plan-review, verification, ai-workflow]
 author: paul.mourer
 license: MIT

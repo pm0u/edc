@@ -1,11 +1,11 @@
-# kit
+# edc
 
-Small, purpose-built agents and commands for AI-assisted development workflows. Designed for [OpenPackage](https://openpackage.dev).
+Defensive tools for working with AI. Designed for [OpenPackage](https://openpackage.dev).
 
 ## Install
 
 ```bash
-opkg install gh@pm0u/kit
+opkg install gh@pm0u/edc
 ```
 
 ## Agents
