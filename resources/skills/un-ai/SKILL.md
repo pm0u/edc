@@ -1,5 +1,8 @@
 ---
-description: Strip AI slop from a document — extract what it actually says in plain language
+id: un-ai
+description: "Strip AI slop from a document — extract what it actually says in plain language"
+invocation:
+  byModel: false
 ---
 
 # Un-AI

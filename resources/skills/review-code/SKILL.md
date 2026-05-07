@@ -1,5 +1,8 @@
 ---
-description: Adversarial review of code changes — hunt for AI-generated failure modes
+id: review-code
+description: "Adversarial review of code changes — hunt for AI-generated failure modes"
+invocation:
+  byModel: false
 ---
 
 # Review Code

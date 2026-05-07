@@ -1,0 +1,5 @@
+schemaVersion: "1.0.0"
+id: edc
+name: edc
+description: Defensive tools for working with AI — adversarial reviewers and workflow commands.
+version: "0.4.2"

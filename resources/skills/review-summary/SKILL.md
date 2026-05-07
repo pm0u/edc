@@ -1,5 +1,8 @@
 ---
-description: Morning PR review summary — find PRs awaiting review, adversarial review each, send a Slack DM
+id: review-summary
+description: "Morning PR review summary — find PRs awaiting review, adversarial review each, send a Slack DM"
+invocation:
+  byModel: false
 ---
 
 # Review Summary

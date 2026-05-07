@@ -1,5 +1,8 @@
 ---
-description: Execute a task then adversarially review the result — build it, then try to break it
+id: build-n-break
+description: "Execute a task then adversarially review the result — build it, then try to break it"
+invocation:
+  byModel: false
 ---
 
 # Build-n-Break

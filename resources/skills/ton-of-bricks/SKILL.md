@@ -1,5 +1,8 @@
 ---
-description: Validate that what you built actually works — test it like a real user, not with mocks
+id: ton-of-bricks
+description: "Validate that what you built actually works — test it like a real user, not with mocks"
+invocation:
+  byModel: false
 ---
 
 # Ton of Bricks

@@ -1,5 +1,8 @@
 ---
-description: Trace how data or execution flows through a system — from entry point to outcome
+id: trace-flow
+description: "Trace how data or execution flows through a system — from entry point to outcome"
+invocation:
+  byModel: false
 ---
 
 # Trace Flow

@@ -1,5 +1,8 @@
 ---
-description: Adversarial review of a plan — poke holes, challenge assumptions, surface risks
+id: review-plan
+description: "Adversarial review of a plan — poke holes, challenge assumptions, surface risks"
+invocation:
+  byModel: false
 ---
 
 # Review Plan

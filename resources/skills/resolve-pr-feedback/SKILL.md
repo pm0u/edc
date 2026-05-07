@@ -1,5 +1,8 @@
 ---
-description: Fetch unresolved PR review comments, address each one, and resolve the threads
+id: resolve-pr-feedback
+description: "Fetch unresolved PR review comments, address each one, and resolve the threads"
+invocation:
+  byModel: false
 ---
 
 # Resolve PR Feedback

@@ -1,5 +1,8 @@
 ---
-description: Derive a spec from existing code — document what it actually does, not what someone intended
+id: reverse-spec
+description: "Derive a spec from existing code — document what it actually does, not what someone intended"
+invocation:
+  byModel: false
 ---
 
 # Reverse Spec

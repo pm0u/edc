@@ -1,5 +1,8 @@
 ---
-description: Generate a meaningful summary of what was built and why — not just a diff recap
+id: implementation-summary
+description: "Generate a meaningful summary of what was built and why — not just a diff recap"
+invocation:
+  byModel: false
 ---
 
 # Implementation Summary

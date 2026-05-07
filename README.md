@@ -1,12 +1,14 @@
 # edc
 
-Defensive tools for working with AI. Designed for [OpenPackage](https://openpackage.dev).
+Defensive tools for working with AI. Distributed as a [Switchboard](https://github.com/pm0u/switchboard) package.
 
 ## Install
 
 ```bash
-opkg install gh@pm0u/edc
+switchboard install github.com/pm0u/edc@sb
 ```
+
+This installs the agents and commands into Claude Code's project scope (`.claude/`). For other targets and scopes, see Switchboard's CLI help.
 
 ## Agents
 
@@ -23,7 +25,8 @@ opkg install gh@pm0u/edc
 | `/build-n-break` | Execute a task then adversarially review the result. You review disputes, not the full diff. |
 | `/review-plan` | Run an adversarial review against a plan or design doc. |
 | `/review-code` | Run an adversarial code review against recent changes. |
-| `/implementation-summary` | Generate a summary of what was built and why -- intent and decisions, not a diff listing. |
+| `/review-summary` | Morning PR review summary — find PRs awaiting review, adversarial review each, send a Slack DM. |
+| `/implementation-summary` | Generate a summary of what was built and why — intent and decisions, not a diff listing. |
 | `/ton-of-bricks` | Reality-check validation. Forces real-world verification instead of trusting tests and types. |
 | `/resolve-pr-feedback` | Fetch and address unresolved PR review comments. |
 | `/derive-spec` | Derive a specification from a task description. |
@@ -32,12 +35,23 @@ opkg install gh@pm0u/edc
 | `/mermaid` | Generate Mermaid diagrams from code or descriptions. |
 | `/un-ai` | Strip AI slop from a document. Extract what it actually says in plain language. |
 
+## Layout
+
+```
+package.yaml                                # Switchboard manifest
+resources/
+  agents/<id>.md                            # subagent definitions
+  skills/<id>/SKILL.md                      # commands (skills with invocation.byModel: false)
+```
+
+Commands are authored as skills with `invocation.byModel: false`; the Claude Code visitor routes them to `.claude/commands/<id>.md` so they show up as slash commands.
+
 ## Philosophy
 
 AI tools are useful for bounded, verifiable tasks. They are bad at judgment, taste, and knowing when they're wrong. These tools are built around that reality:
 
 - **Adversarial by default.** Assume AI output is wrong until proven otherwise.
-- **Verification over generation.** The hard part isn't writing code -- it's knowing the code is correct.
+- **Verification over generation.** The hard part isn't writing code — it's knowing the code is correct.
 - **Human judgment where it matters.** Route human attention to disputes and decisions, not scanning diffs.
 
 Stay safe out there, meatbags.

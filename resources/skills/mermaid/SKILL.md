@@ -1,5 +1,8 @@
 ---
-description: Generate a mermaid diagram from code, a description, or a traced flow
+id: mermaid
+description: "Generate a mermaid diagram from code, a description, or a traced flow"
+invocation:
+  byModel: false
 ---
 
 # Mermaid

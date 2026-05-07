@@ -1,5 +1,8 @@
 ---
-description: Derive a focused spec with acceptance criteria from requirements, conversation, code, or an issue
+id: derive-spec
+description: "Derive a focused spec with acceptance criteria from requirements, conversation, code, or an issue"
+invocation:
+  byModel: false
 ---
 
 # Derive Spec
