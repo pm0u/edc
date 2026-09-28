@@ -270,22 +270,14 @@ sentence twice, cut one.}
 - {Prerequisite versions or releases and their status.}
 ```
 
-## Step 6: Call the Readiness
+## Step 6: Deliver It
 
-End with one line stating who can pick this up:
-
-- **Ready for agent** — every decision is made, and every criterion can be checked without product judgment.
-- **Ready for human** — needs taste, design judgment, or access an agent doesn't have. Say which.
-- **Not ready** — list what's still open. Don't file it.
-
-Be honest here. Labeling a task agent-ready when three decisions are still open is how an agent ends up inventing them.
-
-## Step 7: Deliver It
+If decisions are still open, list them and don't file.
 
 **Always print the markdown first.** Then route it based on where you are — check, don't assume:
 
 - **Jira in play** (a project key in the source, `acli` available) — offer to create the work item using the `acli` skill. Confirm project, type, and any required fields before creating.
-- **GitHub repo with `gh` available** — offer `gh issue create`. Suggest labels that already exist in the repo (`gh label list`), including a readiness label if the repo uses one. Don't invent labels.
+- **GitHub repo with `gh` available** — offer `gh issue create`. Suggest labels that already exist in the repo (`gh label list`). Don't invent labels.
 - **Feeding an engineering loop** — write it to a file and hand the path to `/ghb:sloop`, `/ghb:coop`, or an implementation session.
 - **None of the above** — the markdown is the deliverable.
 
