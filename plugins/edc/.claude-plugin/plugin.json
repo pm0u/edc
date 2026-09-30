@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "edc",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Everyday-carry AI utilities — one-shot prompt tools with no agents: write-task, derive/reverse-spec, trace-flow, mermaid, un-ai, implementation-summary, ton-of-bricks.",
   "author": { "name": "Paul Mourer" },
   "license": "MIT",

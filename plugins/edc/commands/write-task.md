@@ -115,7 +115,7 @@ Pick the smallest tier that holds the work. Padding a one-line fix into the full
 | Tier | When | Sections |
 |------|------|----------|
 | **Brief** | A bug or contained change. One reviewer, one sitting. The mechanism is understood. | Summary, Current/Desired behavior, Key interfaces, Criteria, Out of scope |
-| **Standard** | A feature touching a few surfaces. Still one PR. Decisions fit inside the criteria. | What to build, Criteria (compound), Key interfaces, Out of scope, Blocked by |
+| **Standard** | A feature touching a few surfaces. Still one PR. Decisions fit inside the criteria. | What to build, Criteria (compound), Key interfaces, Out of scope, Blocked by (not in Jira) |
 | **Full** | New capability across backend, frontend, storage, and docs. Multiple slices. Decisions need their own space. | Delivery, Problem, Solution, User stories, Implementation decisions, Testing decisions, Out of scope |
 
 **Signals you need the next tier up:** the criteria list passes ten items; two criteria contradict unless you explain a decision; the work can't land in one reviewable PR; you're writing "and also" a lot.
@@ -206,7 +206,8 @@ floor, a dependency, a platform.}
 
 ## Blocked by
 
-{Link, and delivery order relative to other work. Omit if nothing blocks it.}
+{Link, and delivery order relative to other work. Omit if nothing blocks it,
+and omit it in Jira — there the order lives in issue links (see Step 6).}
 
 ## Source
 
@@ -276,7 +277,7 @@ If decisions are still open, list them and don't file.
 
 **Always print the markdown first.** Then route it based on where you are — check, don't assume:
 
-- **Jira in play** (a project key in the source, `acli` available) — offer to create the work item using the `acli` skill. Confirm project, type, and any required fields before creating.
+- **Jira in play** (a project key in the source, `acli` available) — offer to create the work item using the `acli` skill. Confirm project, type, and any required fields before creating. Express ordering and dependencies as issue links (Blocks, or the project's equivalent), not as a "Blocked by" section or "blocks X" prose in the body — links show on the board and stay correct when tickets move, body text doesn't. Naming a sibling ticket in the body is still fine where it carries meaning ("the tests from WHERE-123 pass unmodified"). When filing several related tickets, create them first, then write the bodies with the real keys and add the links.
 - **GitHub repo with `gh` available** — offer `gh issue create`. Suggest labels that already exist in the repo (`gh label list`). Don't invent labels.
 - **Feeding an engineering loop** — write it to a file and hand the path to `/ghb:sloop`, `/ghb:coop`, or an implementation session.
 - **None of the above** — the markdown is the deliverable.
