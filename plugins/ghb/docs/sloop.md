@@ -1,8 +1,10 @@
 # /sloop — the engineering loop
 
-A coordinator-driven loop for building a change under adversarial review. A dev agent builds against a spec, two reviewers attack the result in parallel, and a coordinator iterates with fresh dev agents until the code passes review or the loop stalls. You stay out of it until the end — the one exception is a single approval gate before any code is written.
+A coordinator-driven loop for building a change under adversarial review. A dev agent builds against a spec, reviewers attack the result, and a coordinator iterates with fresh dev agents until the code passes review or the loop stalls. Then a saboteur checks whether the tests would catch the code going wrong. You stay out of it until the end, except for one approval gate before any code is written.
 
 The bet is simple: AI is decent at building bounded things and bad at knowing when it's wrong. So sloop never trusts a single pass. Whatever the builder produces gets stress-tested by agents whose only job is to find what's broken, and a coordinator — which never writes code itself — decides what's a real finding and what's noise.
+
+This page is the overview. The workflow itself — roles, phases, thresholds, report format — lives only in [`commands/sloop.md`](../commands/sloop.md).
 
 ## When to use it
 
@@ -17,41 +19,25 @@ Skip it for trivial changes, where the coordination cost outweighs the work, and
 /sloop --yolo [task description]
 ```
 
-By default the loop pauses once, after the plan review, to show you the final spec and get your go-ahead before any code is written. `--yolo` skips that gate and runs autonomously — the coordinator resolves open questions with its own judgment and records those calls in the final report. Everything after Phase 0 is autonomous either way.
+`--yolo` skips the approval gate; the coordinator resolves plan-review questions itself and records the calls in the report.
 
-## Roles
+## At a glance
 
-| Role | Who | Job |
-|------|-----|-----|
-| Coordinator | primary session | Writes the spec, spawns the agents, adjudicates findings, decides pass/iterate. Never writes code. |
-| Researcher | `loop-researcher` | Explores the codebase and returns a brief so the coordinator authors the spec from fact. Phase 0, only when the task needs grounding the coordinator lacks. |
-| Plan reviewer | `adversarial-plan-reviewer` | Stress-tests the spec at handoff, before any code exists. |
-| Builder | `loop-dev` | Implements the spec (or fixes findings) in phases, verifies for real, reports honestly what it didn't verify. Fresh instance every iteration. |
-| Reviewer A | `adversarial-code-reviewer` | Line level: bugs, fabrications, reckless completion. |
-| Reviewer B | `adversarial-architecture-reviewer` | System level: placement, patterns, complexity, direction. |
-| Verifier | `loop-verifier` | Reproduces the build report's verification claims and attacks its "not verified" list. Spawned alongside the reviewers when the report claims behavioral verification; skipped when re-running the test suite covers it. |
-
-Subagents can't spawn subagents — all spawning happens in the coordinator.
-
-## How it flows
-
-**Phase 0 — spec & plan review.** The coordinator turns your task into a short spec: goal, constraints, 2-6 acceptance criteria. When the task needs codebase grounding it doesn't already have, it hands off to the researcher first, which explores and returns a brief so the spec is authored from fact rather than guesswork. The plan reviewer then stress-tests the spec — the cheapest place to catch a bad assumption is before any code exists. You approve the frozen spec (unless `--yolo`), the work goes onto a feature branch, and the coordinator records two baselines: whether the test suite passes (so pre-existing failures can't be pinned on the build) and a cheap shape metric over the files in scope — source lines, file count, exported symbols — which gets re-measured every round.
-
-**Phase 1 — build.** A fresh dev agent implements the spec in phases (orient, plan, implement, verify), commits in small units, and reports what it did and — just as important — what it couldn't verify. It gets the research brief so it orients from the map instead of re-exploring.
-
-**Phase 2 — review.** Both reviewers attack the diff in parallel. They get the spec, the research brief, and the build report, including its "not verified" and "assumptions" sections, so they know where to dig. When the build report claims behavioral verification, a verifier joins the same parallel batch and reproduces the claims — re-running what the dev says it ran, attempting what it says it couldn't. On fix rounds the reviewers get the round's delta as their focus, confirm the claimed fixes, and check for regressions rather than re-reviewing the whole range from scratch.
-
-**Phase 3 — adjudicate.** The coordinator re-measures the shape metric and reads the trajectory against what the spec asked for, then merges the reviews (and the verification report, if a verifier ran) and triages every finding: actionable ones go to the next round, noise gets dropped with a reason, disputes get resolved with evidence or parked for you. A build-report claim the verifier contradicted is automatically actionable and discredits the report's other claims. Two classes of finding get special handling. A **premise** finding — this abstraction doesn't earn its complexity, the spec's approach is itself the problem — is never the coordinator's to dismiss; it comes to you in the round it appears, because it always looks out of scope and it's the most expensive kind to get wrong. And every actionable finding gets a **chain check**: does this exist only because of last round's fix? Then it decides — pass, iterate with a fresh dev agent, or stall.
-
-**Phase 4 — report.** You get a summary: the branch, a diff link for the whole range, a table of every acceptance criterion with met/unmet and the evidence, the trajectory table, the review history, which findings were resolved and how, what was dismissed as noise (you may disagree), the disputes left for you, and a short "what to check" list of specific things to verify by hand. The criteria are tabulated rather than narrated on purpose — individually defensible deviations are invisible in aggregate until you put them in rows.
+0. **Spec.** Your task becomes a short spec with acceptance criteria, stress-tested by a plan reviewer. You approve it, and it freezes.
+1. **Build.** A dev agent implements it and reports what it verified and what it couldn't.
+2. **Review.** Line-level and architecture reviewers attack the diff; a verifier reproduces the dev agent's claims when they go beyond the test suite.
+3. **Adjudicate.** The coordinator triages findings and decides to pass, iterate with a fresh dev agent, or stall and escalate to you.
+4. **Sabotage.** The saboteur tries to break the passed code without failing the tests; each survivor gets a killing test.
+5. **Report.** You get the result, routed to what needs your eyes.
 
 ## What you get back
 
-The work lands on a feature branch, with the loop's commits kept off main. The final report routes your attention to where it matters — disputes and unverified claims — instead of asking you to scan the whole diff. The dismissed-as-noise section is deliberate: the coordinator shows its work so you can catch a finding it dropped too eagerly.
+The work lands on a feature branch, with the loop's commits kept off main. The report gives you a diff link, every acceptance criterion tabulated with evidence, a test-strength line from sabotage, and a short list of specific things to check by hand. It routes your attention to disputes and unverified claims instead of the whole diff, and it shows what the coordinator dismissed as noise so you can catch a finding it dropped too eagerly.
 
 ## Limits worth knowing
 
-- Passing the loop means the code survived adversarial review, not that it's correct. You're still the final reviewer — that's what the "what to check" list is for.
-- The loop stalls on purpose. A wrong-direction architecture verdict, the same finding surviving two rounds, three completed iterations, or the shape metric moving against the spec's stated direction two rounds running stops it and escalates to you. More loops won't fix a disagreement about direction, and pretending otherwise just burns iterations. That last condition exists because every other check judges one round against the spec — a loop can pass four clean rounds in a row and still walk the change somewhere the task never asked to go.
-- The spec freezes after the Phase 0 gate. Mid-loop scope changes mean starting a new loop — the contract can't move under the agents building and reviewing against it. Frozen isn't the same as correct, though: from round 2 the reviewers are asked outright whether the spec is the problem, and at round 3 a fresh reviewer with no history joins to ask why the new machinery exists at all.
-- `--yolo` trades the safety of the approval gate for autonomy. The coordinator still runs the plan review; it just resolves what it finds with its own judgment. Good for low-stakes or well-understood tasks, riskier for anything where a wrong assumption is expensive.
+- Passing means the code survived adversarial review, not that it's correct. You're still the final reviewer.
+- Sabotage measures the tests against the spec, not against everything that could go wrong. Behavior the spec never named is untested by construction.
+- The loop stalls on purpose — on a direction disagreement, a finding that keeps coming back, or the iteration cap — and escalates to you rather than burning more rounds.
+- The spec freezes after the approval gate. Changing scope mid-loop means starting a new loop.
+- Some findings come to you mid-loop even though the loop is otherwise autonomous: ones that question the spec's premise are never the coordinator's to dismiss.

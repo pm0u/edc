@@ -73,10 +73,11 @@ $ARGUMENTS
 | Agent builder | `loop-dev` agent                         | Builds the slices routed to agents, plus **Absorbed fixes inside human-built slices** on fix rounds. Carries the injected rubric so it can honor shells, bubble up mis-tiered slices, and stop when a fix bends. Fresh each iteration. |
 | Reviewer A    | `adversarial-code-reviewer` agent         | Line-level, **every slice regardless of tier or who built it**.                                                                               |
 | Reviewer B    | `adversarial-architecture-reviewer` agent | System-level, every slice.                                                                                                                    |
-| Verifier      | `loop-verifier` agent                    | Reproduce verification claims — every agent Build Report plus the human's done signal (Phase 2, when any claim is behavioral).                |
+| Verifier      | `loop-verifier` agent                    | Reproduce verification claims — every agent Build Report plus the human's done signal (Phase 2, when any claim is behavioral); confirm kill tests. |
+| Saboteur      | `loop-saboteur` agent                    | Mutate the assembled change to violate the spec and shells while the tests stay green; report survivors (step 14, alongside the tier review).  |
 
 Subagents cannot spawn subagents — all spawning happens here. `loop-dev`, `loop-researcher`,
-and `loop-verifier` are shared with `/sloop` — coop hands them the tier rubric and their
+`loop-verifier`, and `loop-saboteur` are shared with `/sloop` — coop hands them the tier rubric and their
 assigned slices in the spawn prompt; they behave identically otherwise.
 
 ## Workflow
@@ -218,14 +219,25 @@ assigned slices in the spawn prompt; they behave identically otherwise.
     re-derive only the model-touching entries; an Own slice with an empty ledger needs nothing
     here, because the re-deriving was the building. Findings from this review are actionable
     like any reviewer's. The loop never passes on agent verdicts alone.
-15. Decide: **Pass** / **Iterate** / **Stall** (escalate). Same thresholds as sloop, plus one
+
+    **Sabotage runs alongside the tier review**, per sloop's Phase 4 — same skip conditions,
+    once per loop, spawned in a worktree in the background while the human reads. Give the
+    saboteur the shells as targets alongside the acceptance criteria, but not the tier labels:
+    like the reviewers, it attacks every slice at full strength. Adjudicate its report as sloop
+    does. If the tier review produces actionable findings and the loop iterates, hold the
+    test-gap survivors for the kill round at the next pass, dropping any whose diff no longer
+    applies.
+15. Decide: **Pass** / **Iterate** / **Stall** (escalate). On Pass, run sloop's kill round for
+    any test-gap survivors before Phase 4. Kill tests change test files only, so they never add
+    ledger lines. Same thresholds as sloop, plus one
     coop-specific stall: **a slice accumulating repeated Bends or repeated model-touching ledger
     entries** is telling you its shape is wrong rather than its coverage, and no number of
     absorbed cases fixes a shape — stop and escalate instead of grinding another round of guards
     onto it.
 
     On iterate, route every actionable finding by **the kind of work the fix is, not by who built
-    the slice**. Agent-slice findings go to a **fresh** `loop-dev` (never the previous builder).
+    the slice**. Agent-slice findings go to a **fresh** `loop-dev` (never the previous builder),
+    escalated to Opus under the same rule as sloop's Iterate.
     Own-slice findings split per their step 13 classification: **Absorbed** fixes also go to a
     fresh `loop-dev` — spawned with the slice's shells, its ledger so far, and the explicit
     instruction to stop and report rather than reshape the human's core if the fix turns out to
@@ -240,7 +252,7 @@ assigned slices in the spawn prompt; they behave identically otherwise.
 ### Phase 4: Report
 
 16. Generate a diffr link for the full range (`mcp__diff-review__get_diff_link`).
-17. Present the final report — the sloop report shape, plus:
+17. Present the final report — the sloop report shape (including Test strength), plus:
     - **Who built what** — which slices were human-built vs agent-built, and their tiers.
     - **Tiering decisions** — and any the plan reviewer or bubble-up changed.
     - **The ledger** — per Own slice, every agent fix that landed inside it, with the

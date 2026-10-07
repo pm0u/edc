@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "ghb",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "description": "Get-home-bag \u2014 the heavier machinery: the sloop and coop engineering loops, the adversarial-review, tier and PR-feedback commands, and the shared tier rubric, plus the loop and reviewer agents they spawn.",
   "author": {
     "name": "Paul Mourer"
@@ -13,6 +13,7 @@
     "plan-review",
     "verification",
     "engineering-loop",
-    "tiers"
+    "tiers",
+    "mutation-testing"
   ]
 }
