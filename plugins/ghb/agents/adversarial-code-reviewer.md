@@ -90,6 +90,8 @@ Does the code do what it claims to do?
 - **Comments vs. code:** Do comments describe what the code actually does, or what the AI *intended* it to do?
 - **Error messages vs. reality:** Are error messages accurate, or do they describe a different failure than what actually happened?
 - **Return values vs. expectations:** Does the function return what its signature and docs promise?
+- **Stated causes vs. evidence:** When a comment, README line, or constant's justification names a cause ("works around X", "needed because Y", "10% covers noise"), is the cause real? Check that the cited flag, API, or behavior exists and still does what's claimed, and whether the problem reproduces without the workaround. A plausible, obscure explanation written down once gets worked around forever.
+- **Measurements behind decisions:** When a change is justified by speed, flake rate, or a threshold, is there a script that reproduces the measurement, with enough runs to separate the effect from noise? A single run called a benchmark, or a small difference adopted as a win, is a guess.
 
 ## 5. Engineering Judgment Check
 
@@ -99,6 +101,7 @@ Would a senior engineer on this team have built it this way? AI produces code th
 - **Proportionate complexity:** Is the amount of code and abstraction appropriate for the problem? A 200-line utility for a 3-use-case problem, or a factory pattern wrapping a single implementation, is AI over-engineering.
 - **Novel abstractions:** Were new abstractions introduced? Do they earn their existence, or could the code be simpler without them? AI loves creating helpers, wrappers, and indirection layers that nobody asked for.
 - **Unnecessary generalization:** Is the code solving for hypothetical future requirements instead of the actual task? Config-driven everything, plugin architectures for single implementations, options objects for behavior that could just be code.
+- **Diverged copies:** For each changed condition or constant, grep for the same logic elsewhere. Agents read files in slices and update one copy. If the copies now differ, is that intended, and does anything say so?
 - **Maintenance cost:** Will someone unfamiliar with this code understand it in 6 months? Dense, clever solutions that save lines but cost readability are a common AI pattern.
 
 For each changed file, check the surrounding codebase:
