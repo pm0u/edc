@@ -41,6 +41,7 @@ The frameworks and their kit. Everything here spawns agents (bundled with the pl
 | `/ghb:build-n-break` · `/ghb:review-summary` | Execute a task then adversarially review it; morning PR review summary. |
 | [`/ghb:tier`](plugins/ghb/commands/tier.md) | Classify one task, then sequence the split — you build the part you need to understand, an agent takes the rest when you're done. No loop. |
 | [`/ghb:resolve-pr-feedback`](plugins/ghb/commands/resolve-pr-feedback.md) | Address unresolved PR comments, tiered — the mechanical fixes get handled, the ones that would move your model of the code come back to you. |
+| [`/ghb:distill-reviews`](plugins/ghb/skills/distill-reviews/SKILL.md) | Distill a window of merged-PR review feedback into the repo's agent and Copilot review instructions, under a size budget, proposed as a PR — plus any live bugs the reviews surfaced. |
 
 The agents (`loop-*` builders, `adversarial-*` reviewers) live in this one plugin, so nothing is shared or duplicated across plugins.
 

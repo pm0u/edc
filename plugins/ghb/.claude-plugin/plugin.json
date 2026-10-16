@@ -1,8 +1,8 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "ghb",
-  "version": "0.20.0",
-  "description": "Get-home-bag \u2014 the heavier machinery: the sloop and coop engineering loops, the adversarial-review, tier and PR-feedback commands, and the shared tier rubric, plus the loop and reviewer agents they spawn.",
+  "version": "0.21.0",
+  "description": "Get-home-bag \u2014 the heavier machinery: the sloop and coop engineering loops, the adversarial-review, tier, PR-feedback and review-distillation commands, and the shared tier rubric, plus the loop and reviewer agents they spawn.",
   "author": {
     "name": "Paul Mourer"
   },
