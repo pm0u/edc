@@ -1,0 +1,7 @@
+# One stance per line, "name: text". Build N gets line N, wrapping around. A stance only decides
+# what the tests and callers leave open; the tests always win.
+strict: Where the tests and callers don't say, be strict. Validate inputs and throw on anything unexpected rather than guessing.
+lenient: Where the tests and callers don't say, be lenient. Coerce, accept, and return something reasonable rather than throwing.
+minimal: Where the tests and callers don't say, do the simplest thing that makes the tests pass. Handle nothing they don't require.
+thorough: Where the tests and callers don't say, handle every edge you can think of (limits, encodings, empty and huge inputs, ordering) in whatever way you judge most correct.
+conventional: Where the tests and callers don't say, do what the most widely used library for this kind of problem does.

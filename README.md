@@ -40,6 +40,8 @@ The frameworks and their kit. Everything here spawns agents (bundled with the pl
 | `/ghb:review-code` · `/ghb:review-plan` | Adversarial review of recent changes, or of a plan/design doc. |
 | `/ghb:build-n-break` · `/ghb:review-summary` | Execute a task then adversarially review it; morning PR review summary. |
 | [`/ghb:tier`](plugins/ghb/commands/tier.md) | Classify one task, then sequence the split — you build the part you need to understand, an agent takes the rest when you're done. No loop. |
+| [`/ghb:wiggle-room`](plugins/ghb/skills/wiggle-room/SKILL.md) | Measure how much a test suite pins. Delete a bounded module, have cheap isolated models rebuild it from the tests alone, diff their behavior against the original, and triage each divergence: pin it, free it, or it's a bug. |
+| [`/ghb:perturb`](plugins/ghb/skills/perturb/SKILL.md) | Run the suite under a changed environment (timezone, locale, the date, a backwards clock, readdir order, no network) and report what the code and its tests rely on without saying so. Model-free. |
 | [`/ghb:resolve-pr-feedback`](plugins/ghb/commands/resolve-pr-feedback.md) | Address unresolved PR comments, tiered — the mechanical fixes get handled, the ones that would move your model of the code come back to you. |
 | [`/ghb:distill-reviews`](plugins/ghb/skills/distill-reviews/SKILL.md) | Distill a window of merged-PR review feedback into the repo's agent and Copilot review instructions, under a size budget, proposed as a PR — plus any live bugs the reviews surfaced. |
 
