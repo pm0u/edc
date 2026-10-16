@@ -68,29 +68,36 @@ def main():
 
     ref = Path(args.ref).resolve()
     results = []
-    for m in json.loads(Path(args.mutants).read_text()):
-        src = (ref / m["file"]).read_text()
-        hits = src.count(m["find"])
-        row = {k: m.get(k) for k in ("class", "file", "why")}
-        if hits != 1:
-            results.append({**row, "verdict": "bad mutant", "detail": f"`find` occurs {hits} times"})
-            continue
-        before = probe(args.probe_cmd, ref, m["input"], args.timeout)
-        with tempfile.TemporaryDirectory() as tmp:
-            work = Path(tmp) / "ref"
-            # APFS clone on macOS; node_modules and friends make a plain copy slow.
-            if subprocess.run(["cp", "-cR", str(ref), str(work)], capture_output=True).returncode:
-                shutil.copytree(ref, work, symlinks=True)
-            (work / m["file"]).write_text(src.replace(m["find"], m["replace"]))
-            tests_pass = sh(args.test_cmd, work, timeout=args.timeout).returncode == 0
-            after = probe(args.probe_cmd, work, m["input"], args.timeout)
-        changed = json.dumps(before, sort_keys=True) != json.dumps(after, sort_keys=True)
-        verdict = ("not attributed" if not changed else "unpinned" if tests_pass else "partly pinned")
-        first = src[: src.index(m["find"])].count("\n") + 1
-        last = first + m["find"].count("\n")
-        results.append({**row, "verdict": verdict, "lines": f"{first}-{last}", "tests_pass": tests_pass,
-                        "output_before": before, "output_after": after,
-                        "blame": blame(args.repo, m["file"], first, last)})
+    with tempfile.TemporaryDirectory() as tmp:
+        # One copy for every mutant, each edit undone before the next: copying and deleting a
+        # reference with node_modules took ~70s, most of the time per mutant. The reference itself
+        # is never edited, so a crash here can't leave later rounds probing a mutant.
+        work = Path(tmp) / "ref"
+        # APFS clone on macOS; node_modules and friends make a plain copy slow.
+        if subprocess.run(["cp", "-cR", str(ref), str(work)], capture_output=True).returncode:
+            shutil.copytree(ref, work, symlinks=True)
+        for m in json.loads(Path(args.mutants).read_text()):
+            target = work / m["file"]
+            src = target.read_text()
+            hits = src.count(m["find"])
+            row = {k: m.get(k) for k in ("class", "file", "why")}
+            if hits != 1:
+                results.append({**row, "verdict": "bad mutant", "detail": f"`find` occurs {hits} times"})
+                continue
+            before = probe(args.probe_cmd, work, m["input"], args.timeout)
+            target.write_text(src.replace(m["find"], m["replace"]))
+            try:
+                tests_pass = sh(args.test_cmd, work, timeout=args.timeout).returncode == 0
+                after = probe(args.probe_cmd, work, m["input"], args.timeout)
+            finally:
+                target.write_text(src)
+            changed = json.dumps(before, sort_keys=True) != json.dumps(after, sort_keys=True)
+            verdict = ("not attributed" if not changed else "unpinned" if tests_pass else "partly pinned")
+            first = src[: src.index(m["find"])].count("\n") + 1
+            last = first + m["find"].count("\n")
+            results.append({**row, "verdict": verdict, "lines": f"{first}-{last}", "tests_pass": tests_pass,
+                            "output_before": before, "output_after": after,
+                            "blame": blame(args.repo, m["file"], first, last)})
 
     json.dump(results, sys.stdout, indent=2)
     print()
