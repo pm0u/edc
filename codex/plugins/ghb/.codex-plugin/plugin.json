@@ -1,0 +1,30 @@
+{
+  "name": "ghb",
+  "version": "0.22.0+codex.323ff4efea78",
+  "description": "Get-home-bag — the heavier machinery: the sloop and coop engineering loops, the adversarial-review, tier, PR-feedback and review-distillation commands, the shared tier rubric, and the wiggle-room and perturb test-suite probes, plus the loop and reviewer agents they spawn.",
+  "author": {
+    "name": "Paul Mourer"
+  },
+  "license": "MIT",
+  "keywords": [
+    "adversarial-review",
+    "code-review",
+    "plan-review",
+    "verification",
+    "engineering-loop",
+    "tiers",
+    "mutation-testing"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Get-Home Bag",
+    "shortDescription": "Engineering loops and adversarial reviews",
+    "longDescription": "Get-home-bag — the heavier machinery: the sloop and coop engineering loops, the adversarial-review, tier, PR-feedback and review-distillation commands, the shared tier rubric, and the wiggle-room and perturb test-suite probes, plus the loop and reviewer agents they spawn.",
+    "developerName": "Paul Mourer",
+    "category": "Productivity",
+    "capabilities": [],
+    "defaultPrompt": [
+      "Use $sloop for this engineering task."
+    ]
+  }
+}

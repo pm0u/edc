@@ -1,11 +1,11 @@
 # edc
 
-Defensive tools for working with AI, distributed as a [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin marketplace named `loadout`. It carries two plugins, by weight:
+Defensive tools for working with AI, available as [Claude Code](https://docs.claude.com/en/docs/claude-code) plugins and Codex plugins. The Claude marketplace is named `loadout`. It carries two plugins, by weight:
 
 - **`edc`** — *everyday carry.* One-shot prompt utilities, no agents.
 - **`ghb`** — *get-home bag.* The heavier machinery: the engineering loops, adversarial review, and the agents they spawn.
 
-## Install
+## Install in Claude Code
 
 ```
 /plugin marketplace add pm0u/edc
@@ -16,6 +16,27 @@ Defensive tools for working with AI, distributed as a [Claude Code](https://docs
 CLI equivalents: `claude plugin marketplace add pm0u/edc`, `claude plugin install ghb@loadout`.
 
 Commands are prefixed by their plugin: `/edc:un-ai`, `/ghb:sloop`.
+
+## Install in Codex
+
+The Codex packages are `codex/plugins/edc` and `codex/plugins/ghb`. Ask Codex to install both local packages into your personal plugin marketplace. Each package has a `.codex-plugin/plugin.json` manifest and discoverable skills. Start a new thread after installation.
+
+Invoke skills with `$write-task`, `$un-ai`, `$sloop`, `$coop`, etc. The command tables below use Claude's slash syntax; the same names are available as Codex skills. Workflow flags still apply, for example `$sloop --yolo fix the cache invalidation bug` or `$coop --escalate=co add the new parser`.
+
+`ghb` uses the delegation tools available in your Codex session, loading its bundled agent prompts explicitly. Multi-agent workflows require delegation support. Concurrent builders get explicit Git worktrees. GitHub workflows require authenticated GitHub access; Slack delivery and diffr links are optional integrations, not installed by this package.
+
+### Maintaining the Codex packages
+
+The original files under `plugins/` remain the source of truth. After editing a command, skill, role, or rubric, regenerate and check the Codex packages:
+
+```sh
+python3 scripts/build_codex.py
+python3 scripts/build_codex.py --check
+```
+
+The build uses only Python's standard library. It converts command invocations and runtime-specific instructions, includes the shared documents and role prompts, and derives a version suffix from package content so changed prompts receive a fresh install cache. Edit `scripts/codex-runtime.md` for the Codex delegation and worktree adapter. Do not edit generated files under `codex/` directly.
+
+For a personal installation, refresh `~/plugins/edc` and `~/plugins/ghb` from the generated packages, then run `codex plugin add edc@personal` and `codex plugin add ghb@personal` (substitute your marketplace name if different). Start a new thread to pick up the changes. The source checkout and installed plugin cache are separate.
 
 ## edc — everyday carry
 
