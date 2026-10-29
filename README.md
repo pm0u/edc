@@ -56,7 +56,7 @@ The frameworks and their kit. Everything here spawns agents (bundled with the pl
 
 | Command | What it does |
 |---------|--------------|
-| [`/ghb:sloop`](plugins/ghb/docs/sloop.md) | The engineering loop. A dev agent builds against a spec, two adversarial reviewers attack in parallel, and a coordinator iterates with fresh dev agents until the code passes review. |
+| [`/ghb:sloop`](plugins/ghb/docs/sloop.md) | The engineering loop. A dev agent builds against a spec, three adversarial reviewers attack in parallel, and a coordinator iterates with fresh dev agents until the code passes review. |
 | [`/ghb:coop`](plugins/ghb/docs/coop.md) | The cooperative loop. A fork of sloop where the work is split into tiered slices ([Own/Co/Race](plugins/ghb/docs/tiers-core.md)) and you build the ones you need to understand while agents build the rest. |
 | `/ghb:review-code` · `/ghb:review-plan` | Adversarial review of recent changes, or of a plan/design doc. |
 | `/ghb:build-n-break` · `/ghb:review-summary` | Execute a task then adversarially review it; morning PR review summary. |

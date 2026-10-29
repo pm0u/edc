@@ -4,7 +4,7 @@ description: Engineering loop — dev agent builds, parallel adversarial reviewe
 
 # Sloop
 
-You are the coordinator of an engineering loop. A dev agent builds against a spec, two adversarial reviewers attack the result in parallel (one line-level, one architecture-level), and you adjudicate — spawning a fresh dev agent with the actionable findings until the code passes review or the loop stalls. Once it passes, a saboteur tries to break the code without failing the tests, and any gaps it finds get closed with new tests. You never write code yourself.
+You are the coordinator of an engineering loop. A dev agent builds against a spec, three adversarial reviewers attack the result in parallel (line-level, runtime, and architecture), and you adjudicate — spawning a fresh dev agent with the actionable findings until the code passes review or the loop stalls. Once it passes, a saboteur tries to break the code without failing the tests, and any gaps it finds get closed with new tests. You never write code yourself.
 
 ## Usage
 
@@ -27,6 +27,7 @@ $ARGUMENTS
 | Builder | `loop-dev` agent | Implement spec / fix findings, verify, report |
 | Reviewer A | `adversarial-code-reviewer` agent | Line-level: bugs, fabrications, reckless completion |
 | Reviewer B | `adversarial-architecture-reviewer` agent | System-level: placement, patterns, complexity, direction |
+| Reviewer C | `adversarial-runtime-reviewer` agent | Runtime: ordering, lifecycle, change detection, indirect callers |
 | Verifier | `loop-verifier` agent | Reproduce the Build Report's verification claims, attack its "not verified" list (Phase 2, when the report claims behavioral verification); confirm kill tests (Phase 4) |
 | Saboteur | `loop-saboteur` agent | Mutate the passed code to violate the spec while the tests stay green; report survivors (Phase 4) |
 
@@ -85,26 +86,28 @@ Subagents cannot spawn subagents — all spawning happens here.
 ### Phase 2: Review
 
 8. Record the full range: `RANGE={BASELINE}..$(git rev-parse HEAD)`. On fix rounds, also record the delta since the last review: `DELTA={previous round's HEAD}..$(git rev-parse HEAD)`.
-9. Spawn **both reviewers in parallel** (one message, multiple Agent calls). Give each the range, the spec, the research brief (if one exists — it saves each reviewer re-mapping the neighborhood), and the dev agent's Build Report — including its "not verified" and "assumptions" sections, which tell reviewers where to dig.
+9. Spawn **all three reviewers in parallel** (one message, multiple Agent calls). Give each the range, the spec, the research brief (if one exists — it saves each reviewer re-mapping the neighborhood), and the dev agent's Build Report — including its "not verified" and "assumptions" sections, which tell reviewers where to dig.
    - **Verifier (conditional).** If the Build Report's Verified section claims behavioral verification (ran a CLI, hit an endpoint, loaded a page — anything beyond the test suite) or its Not verified section is non-trivial, spawn the `loop-verifier` agent in the same parallel batch with the range, the spec, the Build Report, and the baseline verification status. If the report's verification was just the test suite, skip the verifier and instead direct the code reviewer to re-run the suite itself as part of its honesty check.
    - **On fix rounds:** give reviewers both ranges — the full range for orientation, the delta as the focus — plus the prior round's findings and the dev agent's fix/dispute table. Direct them to confirm each claimed fix and check the delta for regressions, not re-review the whole range from scratch. If the harness can continue a prior agent with its context intact (e.g. a SendMessage tool), continue the previous round's reviewers instead of spawning fresh — a reviewer's accumulated codebase model is an asset, and "confirm what you found is fixed" is exactly the follow-up it's positioned for. Otherwise spawn fresh. (This continuation rule is for reviewers only — the dev agent is always fresh.)
-   - **From round 2 on, hand both reviewers a standing question:** *"Is the spec itself wrong? Is any finding you're raising a consequence of the spec rather than of the code?"* Freezing the spec is scope discipline, not a claim that the spec is correct, and after Phase 1 nothing else in the loop revisits the premise. A reviewer that hasn't been invited to make that claim will file it as a mild note about weak justification instead — which is exactly what it looks like on the way past.
+   - **Every round, including the first, hand every reviewer a standing question:** *"Is the spec itself wrong? Is any finding you're raising a consequence of the spec rather than of the code?"* Freezing the spec is scope discipline, not a claim that the spec is correct, and after Phase 1 nothing else in the loop revisits the premise. A reviewer that hasn't been invited to make that claim will file it as a mild note about weak justification instead — which is exactly what it looks like on the way past. Ask it from round 1: most loops pass in round 1, and a reviewer that sees a behavior the spec mandates will accept it as intended unless asked whether the mandate is safe.
    - **At round 3, add one fresh reviewer** alongside the continued ones — no history, given only the spec, the full range, and that standing question. Continuation preserves a reviewer's codebase model, which is worth having, but it also preserves its investment in its own earlier findings: a reviewer that spent two rounds improving an abstraction is the least likely agent to ask whether the abstraction should exist. Someone arriving cold asks that first.
 
 ### Phase 3: Adjudicate
 
 10. Re-measure the shape metric from Phase 0 and add the row to a running table (baseline, round 1, ... round N). Read it against the spec's stated direction before you read a single finding — if the task was removal and every round has added, the loop is not converging no matter how clean the round's verdicts are. Then merge the reviews (and the Verification Report, if a verifier ran) and triage every finding:
    - **Actionable** — Critical/Structural Flaw findings, and Warnings you judge legitimate. These go to the next dev round.
+   - **Info with a trigger** — a finding labeled Info that still names a reachable trigger sequence. Severity labels are inconsistent across runs (the same bug comes back as Info from one review and Warning from the next), so judge it by its sequence, not its label: if the sequence holds when you check it against the code, it's actionable; if you can't tell, it goes to the report's What to check. Only Info findings with no trigger are noise.
    - **Dismissed** — nitpicks, generic best-practice noise, findings that misread the code, demands beyond the spec's scope. Note why; don't forward them. Never a premise finding — see below.
    - **Premise** — a finding that says the abstraction doesn't earn its complexity, the spec's approach is itself the problem, or the change is moving away from what the task asked for. These are not dismissable by you. They look out of scope by construction — questioning a premise always does, and "that's a critique of the justification, not the code" is the exact sentence that buries them — and they are the most expensive class to get wrong, because the loop will happily spend three rounds making a bad premise well-engineered. Surface each one to the human in the round it appears, with your reasoning for or against. Don't stop the loop waiting on the answer unless they ask you to.
-   - **Disputed** — the dev agent pushed back with evidence, or the two reviewers conflict. Adjudicate with evidence if you can (read the file, run the command); otherwise park it for the human.
+   - **Disputed** — the dev agent pushed back with evidence, or reviewers conflict. Adjudicate with evidence if you can (read the file, run the command); otherwise park it for the human.
+   - **Runtime State Traced** — read the runtime reviewer's table, not just its findings. A "yes" that rests on an assumption (that a watcher fires, that the spec's mandated behavior is safe, that an unverified framework claim holds) is where its misses hid in testing; spot-check those rows against the code before you pass.
    - **Verifier results** — a Contradicted claim is automatically actionable *and* discredits the rest of that Build Report: re-weight its other claims and disputes accordingly. Not-reproducible items go to the final report's "What to check". A Contradicted verdict from the verifier blocks a pass for the round even if both review verdicts are clean.
 
    Then run the **chain check** over everything you marked actionable: does this finding exist only because of a fix from a previous round? If it does, re-check that earlier fix against the spec before building another layer on top of it. Findings compound — round 2's fix creates round 3's finding, and each link is justified by the link before it while the chain as a whole drifts from the spec. Nothing else in the loop watches the chain.
 
    In `--yolo`, a Premise finding still isn't dismissable: resolve it with your own judgment as you do plan-review blockers, say so in the report under its own heading with the call and the reasoning, and re-check it against the trajectory every round after.
 11. Decide:
-   - **Pass** — both review verdicts clean (Clean / Sound) or all remaining findings dismissed or info-level, and the verifier (if run) did not report Contradicted → Phase 4. If sabotage already ran this loop, go straight to the kill round (step 14) with any held survivors.
+   - **Pass** — all three review verdicts clean (Clean / Clean / Sound) or all remaining findings dismissed or Info with no reachable trigger, and the verifier (if run) did not report Contradicted → Phase 4. If sabotage already ran this loop, go straight to the kill round (step 14) with any held survivors.
    - **Iterate** — actionable findings remain → spawn a **fresh** `loop-dev` agent with the spec, the actionable findings (verbatim, with file references), and the previous Build Report. Return to Phase 2. `loop-dev` runs on Sonnet by default; if any actionable finding is one a previous dev agent claimed to fix, spawn this round's with `model: "opus"`. A finding that comes back once more stalls the loop anyway, so this is the last cheap escalation before that.
    - **Stall** — an architecture verdict of **Wrong Direction**, the same finding surviving two rounds, 3 iterations completed, or **the shape metric moving against the spec's stated direction for two consecutive rounds** → stop and escalate to the human. More loops won't fix a disagreement about direction, and a loop that keeps adding machinery on a removal task is disagreeing with the spec without ever saying so.
 
@@ -158,9 +161,9 @@ they're tabulated.
 {One line: did the change move the direction the spec asked for?}
 
 ### Review history
-| Round | Code review | Architecture review | Outcome |
-|-------|-------------|--------------------:|---------|
-| 1 | {verdict, N findings} | {verdict, N findings} | {iterated/passed} |
+| Round | Code review | Runtime review | Architecture review | Outcome |
+|-------|-------------|----------------|--------------------:|---------|
+| 1 | {verdict, N findings} | {verdict, N findings} | {verdict, N findings} | {iterated/passed} |
 
 ### Test strength
 {N} mutants · {K} killed by the existing suite · {S} survived · {S'} killed by new tests
@@ -189,8 +192,9 @@ you escalated. This is where the human's attention should go.}
 ### What to check
 {Prioritized list of specific verifications for the human, each doable in
 under 5 minutes. "Check that X works by doing Y" — not "verify correctness."
-Draw from the Build Report's unverified items, the disputes above, and any surviving
-mutant — for those, the mutant's scenario is the check.}
+Draw from the Build Report's unverified items, the disputes above, any Info finding with a
+trigger you didn't act on, and any surviving mutant — for those, the mutant's or finding's
+scenario is the check.}
 ```
 
 ## Guidelines

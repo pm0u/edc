@@ -6,6 +6,7 @@ description: |
   fabricated assumptions, scope violations, and silent failures. Use after code generation
   or on any PR/branch to stress-test implementation quality.
 tools: Read, Grep, Glob, Bash
+model: opus
 ---
 
 # Role

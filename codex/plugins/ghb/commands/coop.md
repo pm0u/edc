@@ -68,6 +68,7 @@ Use the user's skill invocation and conversation context as the input, including
 | Agent builder | `loop-dev` agent                         | Builds the slices routed to agents, plus **Absorbed fixes inside human-built slices** on fix rounds. Carries the injected rubric so it can honor shells, bubble up mis-tiered slices, and stop when a fix bends. Fresh each iteration. |
 | Reviewer A    | `adversarial-code-reviewer` agent         | Line-level, **every slice regardless of tier or who built it**.                                                                               |
 | Reviewer B    | `adversarial-architecture-reviewer` agent | System-level, every slice.                                                                                                                    |
+| Reviewer C    | `adversarial-runtime-reviewer` agent      | Runtime (ordering, lifecycle, change detection, indirect callers), every slice.                                                               |
 | Verifier      | `loop-verifier` agent                    | Reproduce verification claims — every agent Build Report plus the human's done signal (Phase 2, when any claim is behavioral); confirm kill tests. |
 | Saboteur      | `loop-saboteur` agent                    | Mutate the assembled change to violate the spec and shells while the tests stay green; report survivors (step 14, alongside the tier review).  |
 
@@ -168,7 +169,7 @@ assigned slices in the spawn prompt; they behave identically otherwise.
 ### Phase 2: Review
 
 11. Record the range(s) as sloop does (`RANGE`, and `DELTA` on fix rounds).
-12. Spawn **both reviewers in parallel**, plus the verifier when any verification claim is
+12. Spawn **all three reviewers in parallel**, plus the verifier when any verification claim is
     behavioral — a fan-out produces one Build Report per agent, and the human's done signal
     is a claim set too; give the verifier all of them, human claims included, and it
     reproduces the lot. **Reviewers attack every slice at full depth regardless of
@@ -180,7 +181,7 @@ assigned slices in the spawn prompt; they behave identically otherwise.
     Phase 2 rules: full range for orientation, the `DELTA` as focus, the prior round's
     findings and fix/dispute table attached, and continue the previous round's reviewers
     (followup_task or resume_agent followed by send_input) instead of spawning fresh when the harness allows — including the standing
-    "is the spec itself wrong?" question from round 2 on, and the one **fresh** reviewer added
+    "is the spec itself wrong?" question from round 1 on, and the one **fresh** reviewer added
     alongside the continued ones at round 3. In coop that fresh reviewer gets the shells but
     not the tiers, like every other reviewer.
 

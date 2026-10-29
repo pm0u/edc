@@ -25,7 +25,7 @@ $sloop --yolo [task description]
 
 0. **Spec.** Your task becomes a short spec with acceptance criteria, stress-tested by a plan reviewer. You approve it, and it freezes.
 1. **Build.** A dev agent implements it and reports what it verified and what it couldn't.
-2. **Review.** Line-level and architecture reviewers attack the diff; a verifier reproduces the dev agent's claims when they go beyond the test suite.
+2. **Review.** Line-level, runtime, and architecture reviewers attack the diff; a verifier reproduces the dev agent's claims when they go beyond the test suite.
 3. **Adjudicate.** The coordinator triages findings and decides to pass, iterate with a fresh dev agent, or stall and escalate to you.
 4. **Sabotage.** The saboteur tries to break the passed code without failing the tests; each survivor gets a killing test.
 5. **Report.** You get the result, routed to what needs your eyes.
