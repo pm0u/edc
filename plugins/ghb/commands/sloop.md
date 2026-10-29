@@ -127,8 +127,7 @@ Passing review means the code looks right. This phase checks whether the tests w
 
 ### Phase 5: Report
 
-15. Generate a diffr link for the full range so the human can review the changes in one place: call the `mcp__diff-review__get_diff_link` tool with `base={BASELINE}` and `head={HEAD}`. Never hand-build the URL. If the tool is unavailable, note that in the report rather than fabricating a link.
-16. Present the final report:
+15. Present the final report:
 
 ```markdown
 ## Sloop Report
@@ -137,7 +136,6 @@ Passing review means the code looks right. This phase checks whether the tests w
 **Result:** {Passed review | Escalated after N iterations}
 **Branch:** {feature branch the loop built on}
 **Commits:** {BASELINE}..{HEAD} ({N} commits, {N} iterations)
-**Diff:** {diffr link from get_diff_link}
 
 ### What was built
 {Brief summary from the final Build Report}

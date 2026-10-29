@@ -1,6 +1,6 @@
 {
   "name": "ghb",
-  "version": "0.22.1+codex.fb27e6d8c66e",
+  "version": "0.22.2+codex.34f95a5af13d",
   "description": "Get-home-bag — the heavier machinery: the sloop and coop engineering loops, the adversarial-review, tier, PR-feedback and review-distillation commands, the shared tier rubric, and the wiggle-room and perturb test-suite probes, plus the loop and reviewer agents they spawn.",
   "author": {
     "name": "Paul Mourer"

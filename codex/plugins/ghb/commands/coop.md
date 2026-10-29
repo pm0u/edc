@@ -246,8 +246,7 @@ assigned slices in the spawn prompt; they behave identically otherwise.
 
 ### Phase 4: Report
 
-16. Generate a diffr link for the full range (`mcp__diff-review__get_diff_link`).
-17. Present the final report — the sloop report shape (including Test strength), plus:
+16. Present the final report — the sloop report shape (including Test strength), plus:
     - **Who built what** — which slices were human-built vs agent-built, and their tiers.
     - **Tiering decisions** — and any the plan reviewer or bubble-up changed.
     - **The ledger** — per Own slice, every agent fix that landed inside it, with the

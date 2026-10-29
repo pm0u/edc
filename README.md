@@ -23,7 +23,7 @@ The Codex packages are `codex/plugins/edc` and `codex/plugins/ghb`. Ask Codex to
 
 Invoke skills with `$write-task`, `$un-ai`, `$sloop`, `$coop`, etc. The command tables below use Claude's slash syntax; the same names are available as Codex skills. Workflow flags still apply, for example `$sloop --yolo fix the cache invalidation bug` or `$coop --escalate=co add the new parser`.
 
-`ghb` uses the delegation tools available in your Codex session, loading its bundled agent prompts explicitly. Multi-agent workflows require delegation support. Concurrent builders get explicit Git worktrees. GitHub workflows require authenticated GitHub access; Slack delivery and diffr links are optional integrations, not installed by this package.
+`ghb` uses the delegation tools available in your Codex session, loading its bundled agent prompts explicitly. Multi-agent workflows require delegation support. Concurrent builders get explicit Git worktrees. GitHub workflows require authenticated GitHub access; Slack delivery is an optional integration, not installed by this package.
 
 ### Maintaining the Codex packages
 

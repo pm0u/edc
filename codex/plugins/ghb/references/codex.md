@@ -54,9 +54,7 @@ not a directory in the user's project. Coop additionally relies on sloop's share
 mechanics: read `../commands/sloop.md` when running coop, along with the two tier
 rubrics required by coop. Read `re-derive.md` when performing the human review.
 
-The diffr MCP integration is optional. Use its diff-link tool only if actually
-available. Otherwise report the base/head commits and relevant local file links,
-and say that no diffr link was generated. GitHub workflows need an authenticated
+GitHub workflows need an authenticated
 `gh` CLI or equivalent available GitHub tools; do not invent remote results.
 The review-summary workflow uses `$un-ai` from edc when installed; otherwise edit
 the summary's wording directly. Its `--slack` option needs an available Slack
