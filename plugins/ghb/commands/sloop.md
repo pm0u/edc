@@ -97,6 +97,7 @@ Subagents cannot spawn subagents — all spawning happens here.
 10. Re-measure the shape metric from Phase 0 and add the row to a running table (baseline, round 1, ... round N). Read it against the spec's stated direction before you read a single finding — if the task was removal and every round has added, the loop is not converging no matter how clean the round's verdicts are. Then merge the reviews (and the Verification Report, if a verifier ran) and triage every finding:
    - **Actionable** — Critical/Structural Flaw findings, and Warnings you judge legitimate. These go to the next dev round.
    - **Info with a trigger** — a finding labeled Info that still names a reachable trigger sequence. Severity labels are inconsistent across runs (the same bug comes back as Info from one review and Warning from the next), so judge it by its sequence, not its label: if the sequence holds when you check it against the code, it's actionable; if you can't tell, it goes to the report's What to check. Only Info findings with no trigger are noise.
+   - **Cleanup** — missed reuse inside the change: a type, helper, or block the diff restates instead of reusing (the code reviewer reports these under that pattern, usually as Info). They're concrete and in scope, so do them while the code is fresh, but they never decide whether the loop passes or stalls. When the loop is iterating anyway, forward them with the actionable findings. When they're all that's left, run one cleanup round if the iteration cap allows it, and review its delta as usual. If no round is left, or the loop stalls, they go to the report's Cleanups not done.
    - **Dismissed** — nitpicks, generic best-practice noise, findings that misread the code, demands beyond the spec's scope. Note why; don't forward them. Never a premise finding — see below.
    - **Premise** — a finding that says the abstraction doesn't earn its complexity, the spec's approach is itself the problem, or the change is moving away from what the task asked for. These are not dismissable by you. They look out of scope by construction — questioning a premise always does, and "that's a critique of the justification, not the code" is the exact sentence that buries them — and they are the most expensive class to get wrong, because the loop will happily spend three rounds making a bad premise well-engineered. Surface each one to the human in the round it appears, with your reasoning for or against. Don't stop the loop waiting on the answer unless they ask you to.
    - **Disputed** — the dev agent pushed back with evidence, or reviewers conflict. Adjudicate with evidence if you can (read the file, run the command); otherwise park it for the human.
@@ -107,9 +108,9 @@ Subagents cannot spawn subagents — all spawning happens here.
 
    In `--yolo`, a Premise finding still isn't dismissable: resolve it with your own judgment as you do plan-review blockers, say so in the report under its own heading with the call and the reasoning, and re-check it against the trajectory every round after.
 11. Decide:
-   - **Pass** — all three review verdicts clean (Clean / Clean / Sound) or all remaining findings dismissed or Info with no reachable trigger, and the verifier (if run) did not report Contradicted → Phase 4. If sabotage already ran this loop, go straight to the kill round (step 14) with any held survivors.
+   - **Pass** — all three review verdicts clean (Clean / Clean / Sound) or all remaining findings dismissed or Info with no reachable trigger, and the verifier (if run) did not report Contradicted → Phase 4. If cleanups remain and the iteration cap allows another round, run the cleanup round first. If sabotage already ran this loop, go straight to the kill round (step 14) with any held survivors.
    - **Iterate** — actionable findings remain → spawn a **fresh** `loop-dev` agent with the spec, the actionable findings (verbatim, with file references), and the previous Build Report. Return to Phase 2. `loop-dev` runs on Sonnet by default; if any actionable finding is one a previous dev agent claimed to fix, spawn this round's with `model: "opus"`. A finding that comes back once more stalls the loop anyway, so this is the last cheap escalation before that.
-   - **Stall** — an architecture verdict of **Wrong Direction**, the same finding surviving two rounds, 3 iterations completed, or **the shape metric moving against the spec's stated direction for two consecutive rounds** → stop and escalate to the human. More loops won't fix a disagreement about direction, and a loop that keeps adding machinery on a removal task is disagreeing with the spec without ever saying so.
+   - **Stall** — an architecture verdict of **Wrong Direction**, the same finding surviving two rounds (cleanups excepted), 3 iterations completed, or **the shape metric moving against the spec's stated direction for two consecutive rounds** → stop and escalate to the human. More loops won't fix a disagreement about direction, and a loop that keeps adding machinery on a removal task is disagreeing with the spec without ever saying so.
 
 ### Phase 4: Sabotage
 
@@ -179,6 +180,10 @@ they're tabulated.
 "this shouldn't exist." Which round each was raised in, what you did with it, and where it
 landed. Empty is a valid answer. A passed loop with one still open here is the human's call,
 not yours.}
+
+### Cleanups not done
+{Missed-reuse findings the loop had no round left to fix: file:line, what to reuse, and why
+it wasn't done (iteration cap or stall). Empty is a valid answer.}
 
 ### Dismissed as noise
 {Findings you dropped and one-line reasons — the human may disagree. Anything a reviewer

@@ -92,6 +92,7 @@ Would a senior engineer on this team have built it this way? AI produces code th
 - **Novel abstractions:** Were new abstractions introduced? Do they earn their existence, or could the code be simpler without them? AI loves creating helpers, wrappers, and indirection layers that nobody asked for.
 - **Unnecessary generalization:** Is the code solving for hypothetical future requirements instead of the actual task? Config-driven everything, plugin architectures for single implementations, options objects for behavior that could just be code.
 - **Diverged copies:** For each changed condition or constant, grep for the same logic elsewhere. Agents read files in slices and update one copy. If the copies now differ, is that intended, and does anything say so?
+- **Missed reuse inside the change:** For each type, helper, or constant the change itself introduces, grep the diff for code that restates it by hand: an inline type with the same shape, the same expression sequence written out again. Do the same for any block the diff contains twice. Agents build in layers and rarely go back to adopt what a later layer added. A later commit that edits the same shape in two places is direct evidence of a missed abstraction.
 - **Maintenance cost:** Will someone unfamiliar with this code understand it in 6 months? Dense, clever solutions that save lines but cost readability are a common AI pattern.
 
 For each changed file, check the surrounding codebase:

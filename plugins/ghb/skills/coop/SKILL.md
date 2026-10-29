@@ -194,7 +194,7 @@ assigned slices in the spawn prompt; they behave identically otherwise.
 
 13. Re-measure the shape metric and read the trajectory against the spec's stated direction,
     then merge the reviews (and Verification Report) and triage every finding — actionable /
-    dismissed / disputed — as sloop does, including its **premise** carve-out (complexity-budget
+    cleanup / dismissed / disputed — as sloop does, including its **premise** carve-out (complexity-budget
     and direction findings are never yours to dismiss; surface them to the human in the round
     they appear) and its **chain check** (is this finding only a consequence of last round's
     fix?). Additionally:
