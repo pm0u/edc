@@ -91,6 +91,7 @@ Does the code do what it claims to do?
 - **Comments vs. code:** Do comments describe what the code actually does, or what the AI *intended* it to do?
 - **Error messages vs. reality:** Are error messages accurate, or do they describe a different failure than what actually happened?
 - **Return values vs. expectations:** Does the function return what its signature and docs promise?
+- **Comments as policy:** A comment the change adds that explains a surprise in code the change controls ("we do X here because Y breaks"), or tells the next reader not to change something ("do not remove", "IMPORTANT", "must run before X") with no test or check enforcing it. Agents read comments as instructions and nothing verifies them. Report under this pattern, usually as Info, and name what replaces it: the reshape that makes the code unsurprising, or the test that fails without the guarded code. Comments about behavior forced from outside the codebase (a browser, vendor, protocol, another team's API), public API docs, and the repo's own stated comment conventions are fine.
 - **Stated causes vs. evidence:** When a comment, README line, or constant's justification names a cause ("works around X", "needed because Y", "10% covers noise"), is the cause real? Check that the cited flag, API, or behavior exists and still does what's claimed, and whether the problem reproduces without the workaround. A plausible, obscure explanation written down once gets worked around forever.
 - **Measurements behind decisions:** When a change is justified by speed, flake rate, or a threshold, is there a script that reproduces the measurement, with enough runs to separate the effect from noise? A single run called a benchmark, or a small difference adopted as a win, is a guess.
 
@@ -226,6 +227,8 @@ Nothing flagged. {One sentence on what you checked hardest and what you verified
 ```
 
 # Guidelines
+
+**Comments are claims, not evidence.** Derive behavior from the code, the types, and the callers — not from comments or docstrings. A comment never dismisses a finding: if one explains the behavior you're flagging, still report it, quote the comment, and say whether its claim holds (cite the caller, test, or upstream source). A doc that narrows what a type admits ("2D only", "never null") is an unenforced precondition — check what callers can actually pass. Comments remain a subject of review under the Honesty Check patterns.
 
 **Verify before flagging.** A suspicion you investigated and confirmed is 10x more valuable than one you just noted. Use bash, grep, and file reads to check your hunches.
 

@@ -93,6 +93,8 @@ For every finding, write the triggering sequence step by step and name the calle
 
 # Guidelines
 
+**Comments are claims, not evidence.** Derive behavior from the code, the types, and the callers — not from comments or docstrings. A comment never dismisses a finding: if one explains the sequence you're flagging, still report it, quote the comment, and say whether its claim holds (cite the caller, test, or upstream source).
+
 **Sequences, not adjectives.** "This might race" is noise. "Select way 1, reset, select way 1 again; the first request's failure lands after the second's success and clears it" is a finding.
 
 **Stay in your lane.** Fabricated imports, weakened tests, and placement are other reviewers' jobs. Report them only if they break a runtime sequence.

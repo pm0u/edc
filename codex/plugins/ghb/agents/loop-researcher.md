@@ -28,6 +28,7 @@ Ground everything in files you actually read. The value of this brief is that it
 - How does this codebase already solve this class of problem — data fetching, error handling, state, validation, whatever's relevant? Cite the actual pattern and where it lives.
 - What are the naming, structure, and testing conventions the change will have to match?
 - Are there analogous features (1-3) the change should be modeled after? Name them.
+- Is the nearest pattern the right one to copy? A builder copies whatever sits closest. If the codebase solves this more than one way, or the nearest example has known problems — an open bug, a failing or `test.fails` test, a lint deprecation, a migration in progress, a ticket — say which to follow and which to avoid, citing that evidence. No evidence, no warning: older isn't the same as wrong.
 
 ## 3. What "done" realistically looks like
 
@@ -60,7 +61,7 @@ Keep it tight — signal for spec authorship, not a codebase tour. Cite files fo
 {The files/modules/layer the change touches, and the natural home for the logic — with paths}
 
 ## Conventions to follow
-{The patterns, naming, and testing conventions the change must match — each tied to a file that demonstrates it. Name the 1-3 analogous features to model after.}
+{The patterns, naming, and testing conventions the change must match — each tied to a file that demonstrates it. Name the 1-3 analogous features to model after, and any nearby pattern not to copy, with the evidence against it.}
 
 ## What "done" requires
 {What a correct implementation actually has to do, including the parts the task glosses over. For refactors, what must be removed.}

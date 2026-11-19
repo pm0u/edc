@@ -32,12 +32,12 @@ $sloop --yolo [task description]
 
 ## What you get back
 
-The work lands on a feature branch, with the loop's commits kept off main. The report gives you a diff link, every acceptance criterion tabulated with evidence, a test-strength line from sabotage, and a short list of specific things to check by hand. It routes your attention to disputes and unverified claims instead of the whole diff, and it shows what the coordinator dismissed as noise so you can catch a finding it dropped too eagerly.
+The work lands on a feature branch, with the loop's commits kept off main. The report gives you a diff link, every acceptance criterion tabulated with evidence, a test-strength line from sabotage, and a short list of specific things to check by hand. It routes your attention to disputes and unverified claims instead of the whole diff, and it shows what the coordinator dismissed as noise so you can catch a finding it dropped too eagerly. It also proposes checks — a type, lint rule, or test helper — that would have caught this loop's findings before review, and every adjudicated finding is appended to a local log in the repo's git directory that `$distill-reviews` mines for patterns that recur across loops.
 
 ## Limits worth knowing
 
 - Passing means the code survived adversarial review, not that it's correct. You're still the final reviewer.
-- Sabotage measures the tests against the spec, not against everything that could go wrong. Behavior the spec never named is untested by construction.
+- Sabotage measures the tests against the spec and against the workarounds the diff adds, not against everything that could go wrong. Other behavior the spec never named is untested by construction.
 - The loop stalls on purpose — on a direction disagreement, a finding that keeps coming back, or the iteration cap — and escalates to you rather than burning more rounds.
 - The spec freezes after the approval gate. Changing scope mid-loop means starting a new loop.
 - Some findings come to you mid-loop even though the loop is otherwise autonomous: ones that question the spec's premise are never the coordinator's to dismiss.

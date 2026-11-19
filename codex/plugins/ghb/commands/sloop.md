@@ -93,7 +93,7 @@ Keep all delegation in the coordinator; instruct child agents not to delegate fu
 10. Re-measure the shape metric from Phase 0 and add the row to a running table (baseline, round 1, ... round N). Read it against the spec's stated direction before you read a single finding — if the task was removal and every round has added, the loop is not converging no matter how clean the round's verdicts are. Then merge the reviews (and the Verification Report, if a verifier ran) and triage every finding:
    - **Actionable** — Critical/Structural Flaw findings, and Warnings you judge legitimate. These go to the next dev round.
    - **Info with a trigger** — a finding labeled Info that still names a reachable trigger sequence. Severity labels are inconsistent across runs (the same bug comes back as Info from one review and Warning from the next), so judge it by its sequence, not its label: if the sequence holds when you check it against the code, it's actionable; if you can't tell, it goes to the report's What to check. Only Info findings with no trigger are noise.
-   - **Cleanup** — missed reuse inside the change: a type, helper, or block the diff restates instead of reusing (the code reviewer reports these under that pattern, usually as Info). They're concrete and in scope, so do them while the code is fresh, but they never decide whether the loop passes or stalls. When the loop is iterating anyway, forward them with the actionable findings. When they're all that's left, run one cleanup round if the iteration cap allows it, and review its delta as usual. If no round is left, or the loop stalls, they go to the report's Cleanups not done.
+   - **Cleanup** — missed reuse inside the change: a type, helper, or block the diff restates instead of reusing. Also comments as policy: a comment the diff adds to explain a surprise in its own code, or a "do not remove" with nothing enforcing it. The code reviewer reports both under those patterns, usually as Info. They're concrete and in scope, so do them while the code is fresh, but they never decide whether the loop passes or stalls. When the loop is iterating anyway, forward them with the actionable findings. When they're all that's left, run one cleanup round if the iteration cap allows it, and review its delta as usual. If no round is left, or the loop stalls, they go to the report's Cleanups not done.
    - **Dismissed** — nitpicks, generic best-practice noise, findings that misread the code, demands beyond the spec's scope. Note why; don't forward them. Never a premise finding — see below.
    - **Premise** — a finding that says the abstraction doesn't earn its complexity, the spec's approach is itself the problem, or the change is moving away from what the task asked for. These are not dismissable by you. They look out of scope by construction — questioning a premise always does, and "that's a critique of the justification, not the code" is the exact sentence that buries them — and they are the most expensive class to get wrong, because the loop will happily spend three rounds making a bad premise well-engineered. Surface each one to the human in the round it appears, with your reasoning for or against. Don't stop the loop waiting on the answer unless they ask you to.
    - **Disputed** — the dev agent pushed back with evidence, or reviewers conflict. Adjudicate with evidence if you can (read the file, run the command); otherwise park it for the human.
@@ -101,6 +101,10 @@ Keep all delegation in the coordinator; instruct child agents not to delegate fu
    - **Verifier results** — a Contradicted claim is automatically actionable *and* discredits the rest of that Build Report: re-weight its other claims and disputes accordingly. Not-reproducible items go to the final report's "What to check". A Contradicted verdict from the verifier blocks a pass for the round even if both review verdicts are clean.
 
    Then run the **chain check** over everything you marked actionable: does this finding exist only because of a fix from a previous round? If it does, re-check that earlier fix against the spec before building another layer on top of it. Findings compound — round 2's fix creates round 3's finding, and each link is justified by the link before it while the chain as a whole drifts from the spec. Nothing else in the loop watches the chain.
+
+   Then run the **encoding check** over the same set, plus any cleanups: would a check this repo could carry — a type, a lint or import rule, a test helper, a runtime assertion — have made this finding impossible, or caught it before review? Only record a concrete answer: the check, where it would live, and what it would have flagged in this diff. A finding class that shows up twice in this loop, or survives a round, is the strongest candidate — that's the same review comment typed twice. These go to the report's Encoding candidates. Never build them inside the loop; they're outside the spec.
+
+   Finally, **log the round.** Append one row per triaged finding to `$(git rev-parse --git-common-dir)/ghb/findings.tsv`, creating the directory and the header row on first use. It lives inside the git directory, so it's never committed and every worktree of the repo shares it. Columns, tab-separated: `ts` (ISO 8601), `loop` (branch name), `round`, `source` (code / runtime / architecture / verifier / saboteur), `pattern` (the reviewer's pattern or dimension), `file` (`path:line`), `verdict` (actionable / cleanup / dismissed / premise / disputed / survivor), `resolution` (fixed in `sha`, dismissed because ..., or `open`), `encoding` (the candidate check, or empty). Replace tabs and newlines inside a cell with spaces, and keep every cell to one line. Append only: if a later round changes a finding's resolution, add a new row. `$distill-reviews` reads this log to find finding classes that recur across loops.
 
    In `--yolo`, a Premise finding still isn't dismissable: resolve it with your own judgment as you do plan-review blockers, say so in the report under its own heading with the call and the reasoning, and re-check it against the trajectory every round after.
 11. Decide:
@@ -118,8 +122,12 @@ Passing review means the code looks right. This phase checks whether the tests w
    - **Survivor, equivalent** — the mutant doesn't actually change behavior the spec cares about. Dismiss with a reason.
    - **Survivor that matches the spec** — the "mutant" is what the spec asked for, so the original code is what's wrong. Treat it as an actionable finding.
    - **Original violates spec** — actionable.
+   - **Survivor, workaround** — removing a workaround the diff added fails no test. If its scenario holds when you check it against the code, it's a test gap and goes to the kill round like any other. If the scenario doesn't hold, the workaround guards nothing: a cleanup to delete it.
+   - **Unexplained workaround** — the saboteur couldn't name the case it handles. A cleanup: the next dev round either deletes it or pins its case with a test and puts the reason in the commit message.
 
-   Any actionable item reopens the loop: Iterate as in step 11, counting toward the iteration cap. Hold the test-gap survivors and run their kill round at the next Pass, dropping any whose diff no longer applies. Don't re-run the saboteur — a second pass always finds new mutants, and chasing them doesn't converge.
+   Cleanups from sabotage ride along only if something actionable reopens the loop. The kill round changes test files only, so otherwise they go to Cleanups not done.
+
+   Log each item as a `saboteur` row, as in step 10. Any actionable item reopens the loop: Iterate as in step 11, counting toward the iteration cap. Hold the test-gap survivors and run their kill round at the next Pass, dropping any whose diff no longer applies. Don't re-run the saboteur — a second pass always finds new mutants, and chasing them doesn't converge.
 14. **Kill round** (if any test-gap survivors remain). Spawn a fresh `loop-dev` with the spec, the survivors verbatim (criterion, scenario, mutant diff), and this instruction: write one test per survivor that fails with the mutant applied and passes at HEAD, changing test files only. Then:
    - Check `git diff --name-only` over the kill round's commits. Any non-test file means the round broke its constraint — revert those changes and treat the survivor as unkilled.
    - Spawn the `loop-verifier` with `isolation: "worktree"`, the kill round's range, its Build Report, and the survivor diffs to confirm each kill.
@@ -178,8 +186,15 @@ landed. Empty is a valid answer. A passed loop with one still open here is the h
 not yours.}
 
 ### Cleanups not done
-{Missed-reuse findings the loop had no round left to fix: file:line, what to reuse, and why
-it wasn't done (iteration cap or stall). Empty is a valid answer.}
+{Cleanups the loop had no round left to fix — missed reuse, comments as policy, unpinned or
+unexplained workarounds: file:line, what the fix is, and why it wasn't done (iteration cap,
+stall, or found by sabotage after the last round). Empty is a valid answer.}
+
+### Encoding candidates
+{From the encoding check: per candidate, the check (type, lint or import rule, test helper,
+runtime assertion), where it would live, the findings it would have caught (round and file:line),
+and whether the class recurred within this loop. Proposals only, nothing built. Empty is a valid
+answer.}
 
 ### Dismissed as noise
 {Findings you dropped and one-line reasons — the human may disagree. Anything a reviewer

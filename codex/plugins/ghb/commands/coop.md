@@ -191,8 +191,8 @@ assigned slices in the spawn prompt; they behave identically otherwise.
     then merge the reviews (and Verification Report) and triage every finding — actionable /
     cleanup / dismissed / disputed — as sloop does, including its **premise** carve-out (complexity-budget
     and direction findings are never yours to dismiss; surface them to the human in the round
-    they appear) and its **chain check** (is this finding only a consequence of last round's
-    fix?). Additionally:
+    they appear), its **chain check** (is this finding only a consequence of last round's
+    fix?), its **encoding check**, and its findings log (`loop` is the coop branch). Additionally:
     - **Bubble-up flags** → re-tier to Own; the human re-derives the flagged code in the
       tier review (next step), and it's rebuilt only if that re-derivation finds the model
       wrong.
@@ -247,7 +247,8 @@ assigned slices in the spawn prompt; they behave identically otherwise.
 
 ### Phase 4: Report
 
-16. Present the final report — the sloop report shape (including Test strength), plus:
+16. Present the final report — the sloop report shape (including Test strength and Encoding
+    candidates), plus:
     - **Who built what** — which slices were human-built vs agent-built, and their tiers.
     - **Tiering decisions** — and any the plan reviewer or bubble-up changed.
     - **The ledger** — per Own slice, every agent fix that landed inside it, with the

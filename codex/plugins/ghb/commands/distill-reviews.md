@@ -53,7 +53,15 @@ The fetch excludes earlier `distill-reviews` PRs and anonymizes reviewers to
 `copilot | bot | pr-author | human-reviewer`. Evidence like "did the code change after
 this comment" is computed here, by script — gatherers asked to infer it invented data.
 
-If there are no threads and no substantive review bodies, report that and stop.
+Then check the local checkout for a loop findings log at
+`$(git rev-parse --git-common-dir)/ghb/findings.tsv`. `$sloop` and `$coop` append a row there
+for every finding they adjudicate, so it holds review feedback that never reached a PR thread.
+If it exists, copy the header plus the rows whose `ts` falls in the window to
+`$OUT/loop-findings.tsv`. Its rows name agent roles, never people, so nothing in it needs
+anonymizing.
+
+If there are no threads, no substantive review bodies, and no loop findings in the window,
+report that and stop.
 
 ## Step 4: Map the knowledge files
 
@@ -82,8 +90,8 @@ Spawn both in one message:
 - **`ghb:bug-validator`** with the bug claims, candidate paths, repo, ref, and
   `$OUT/bug-validation.md`. Skip if there are no claims.
 - **`ghb:knowledge-integrator`** with the candidates, `thread-evidence.json`, `prs/`,
-  `knowledge-map.md`, `prior-feedback.json` if present, repo, ref, and `$OUT` as its
-  output directory.
+  `knowledge-map.md`, `prior-feedback.json` and `loop-findings.tsv` if present, repo, ref,
+  and `$OUT` as its output directory.
 
 ## Step 7: Reconcile bugs
 
@@ -117,7 +125,9 @@ reasoning lives in inline review comments (`rationale.json`), so the body stays 
 2. Per file, one line on what changed.
 3. **Possible bugs found** — per bug: file:line, the scenario, impact, confidence, the PR
    it came from, suggested fix. Say that each needs a ticket or a "won't fix".
-4. **Suggestions (not applied)** — from `suggestions.md` and the knowledge map.
+4. **Suggestions (not applied)** — from `suggestions.md` and the knowledge map. Proposed
+   checks (CONVERT) come first: a check that enforces a learning outranks a line of prose
+   about it.
 5. How to review: reply on an inline comment to reject or reword an entry; the next run
    reads those replies.
 

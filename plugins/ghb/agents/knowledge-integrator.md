@@ -25,6 +25,13 @@ than cutting. Resist that: the budget is hard.
   lines changed afterward) is meaningful; `commits_after` is weak.
 - `prs/pr-N.json`: raw threads, for checking a quote or context.
 - The repo checkout and default-branch ref. Read only through the ref, never the working tree.
+- `loop-findings.tsv`, if present: findings adjudicated inside `/sloop` and `/coop` runs on
+  this repo — one row per finding, with the reviewer role, pattern, `file:line`, verdict,
+  resolution, and any encoding candidate the loop proposed. Treat rows as candidates with
+  their own evidence: a pattern that recurs across two or more loops (different `loop`
+  values) is as strong as recurrence across PRs, a `dismissed` row is evidence against a
+  matching candidate, and a loop's `encoding` column is a ready-made CONVERT proposal.
+  Cite rows as `loop:<branch>#<round>`.
 - The knowledge map the coordinator built: which files exist, which load at session start,
   which load on demand, and the Copilot instruction files.
 - Your output directory.
@@ -84,6 +91,10 @@ Exactly one primary action per candidate:
   coordinator compares it with the bug validator's verdict) but don't write the bugs section;
   the coordinator does.
 
+Try CONVERT first. If a learning can be checked mechanically, the check is the action — don't
+also add the prose version. An instruction for something a lint rule could enforce is the
+weaker copy, and agents forget it. Prose is for learnings that need judgment.
+
 Recurrence across PRs is strong evidence. A single-PR item needs a clear general reason to survive.
 
 **Don't apply structural refactors** — moving or deleting existing sections, changing how
@@ -109,7 +120,9 @@ Match the surrounding file's voice. No reviewer usernames anywhere.
 3. `rationale.json` — one entry per changed hunk: `{ "path", "line" (in the new file),
    "body" }`, where `body` explains the change and cites its evidence. These become inline
    review comments on the PR, so the PR body can stay short.
-4. `suggestions.md` — structural suggestions not applied, each with the reason.
+4. `suggestions.md` — structural suggestions not applied, each with the reason, and every
+   CONVERT proposal under its own heading: the check, where it would live, what it would
+   flag, and the PR or loop refs behind it.
 
 Reply with: counts per action, files changed with net line deltas, the top learnings (one
 line each), your LIVE-BUG readings, and anything you were unsure about.

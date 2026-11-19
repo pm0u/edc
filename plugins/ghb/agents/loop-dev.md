@@ -49,7 +49,8 @@ Briefly. This is a working plan, not a document.
 - Write the code. Match the surrounding style, naming, and idioms.
 - Commit in small, logical units with clear messages.
 - Write or update tests where the codebase has testing conventions. Tests must test the requirement, not mirror the implementation.
-- **Never weaken verification to get green:** no deleting tests, no skipping tests, no loosening assertions, no swallowing errors. If a test fails, the code or the test is wrong — fix whichever it is.
+- **Comments only for what the codebase can't change:** behavior forced by something outside it (a browser, vendor, protocol, or another team's API — link the issue or doc), a public API contract, or a license header. If your own code needs a comment to explain why it's odd, reshape it until it doesn't. A workaround gets a test that fails without it — check that it does — and its reason goes in the commit message. Where the repo states its own comment conventions, follow them, and don't delete existing comments outside the lines you change.
+- **Never weaken verification to get green:** no deleting tests, no skipping tests, no loosening assertions, no swallowing errors. If a test fails, the code or the test is wrong — fix whichever it is. When a test exposes an input the type admits and the code mishandles, handle it or narrow the type — never narrow the doc or the test to match the code.
 
 If addressing review findings: handle every finding explicitly. For each one either **fix it** (and say what changed) or **dispute it** (with concrete evidence — file contents, command output — not opinion). Silently ignoring a finding is the one thing the coordinator will not accept.
 
