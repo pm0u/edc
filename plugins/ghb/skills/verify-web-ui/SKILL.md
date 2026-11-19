@@ -93,7 +93,10 @@ number, so a cached `chromium-1208` means the release whose `browsers.json` list
 cached build matches, install one with `npx playwright install chromium`, and say so in the report.
 Record the browser version (`npx playwright install --dry-run chromium` prints it) for the comment.
 
-Write `$OUT/playwright.config.ts`, setting `baseURL` and, if a session was saved, `storageState`:
+Always write and run with `$OUT/playwright.config.ts`, even when the repo has its own Playwright
+setup — its config wasn't written for this run. Set `baseURL` and, if a session was saved,
+`storageState`, and keep the launch flag for every app: it costs nothing where there's no canvas.
+Record the launch args you ran with; the comment states them.
 
 ```ts
 import { defineConfig, devices } from '@playwright/test'
@@ -186,7 +189,7 @@ writing-style guidance for PR comments:
 ~~~markdown
 ### UI verification — <n> rows: <p> pass, <f> fail, <c> couldn't verify
 
-Ran against `<short sha>` at `<base-url>`, Chromium <version>, <viewport>. <Where the server's
+Ran against `<short sha>` at `<base-url>`, Chromium <version> (<launch args>), <viewport>. <Where the server's
 code came from, one clause. Placeholder values used, one sentence.>
 
 | Row | Verdict | Observed |
